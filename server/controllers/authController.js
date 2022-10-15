@@ -74,4 +74,14 @@ module.exports = {
       next(error);
     }
   },
+  getUser: async (request, response) => {
+    try {
+      const user = await UserModel.findById(request.user.id).select(
+        "-password"
+      );
+      response.status(200).json(user);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
