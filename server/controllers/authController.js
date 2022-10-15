@@ -1,4 +1,7 @@
 const UserModel = require("../models/UserModel");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const config = require("../../config/config");
 module.exports = {
   signUp: async (request, response, next) => {
     try {
@@ -6,16 +9,38 @@ module.exports = {
       if (!name || !email || !password) {
         return response
           .status(400)
-          .send({ message: "Please enter all fields" });
+          .json({ message: "Please enter all fields" });
       }
       if (await UserModel.findOne({ email })) {
         return response
           .status(400)
-          .send({ message: "User with the email Id already exists" });
+          .json({ message: "User with the email Id already exists" });
       }
       const newUser = new UserModel({ name, email, password, registerDate });
-      await newUser.save();
-      return response.status(201).json(newUser);
+      //create salt and hash to encrypt the password
+      const hashedPassword = bcrypt.hashSync(newUser.password, 10);
+      newUser.password = hashedPassword;
+      const savedUser = await newUser.save();
+      // create a JWT token
+      const token = jwt.sign({ id: savedUser._id }, config.jwtsecret, {
+        expiresIn: 3600,
+      });
+      console.log(token);
+      return response.status(200).json({
+        token,
+        user: {
+          name: savedUser.name,
+          email: savedUser.email,
+          id: savedUser._id,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  login: async (request, response, next) => {
+    try {
+      const { email, password } = request.body;
     } catch (error) {
       next(error);
     }
