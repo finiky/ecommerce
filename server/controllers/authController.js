@@ -2,6 +2,7 @@ const UserModel = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("../../config/config");
+const { exists } = require("../models/UserModel");
 module.exports = {
   signUp: async (request, response, next) => {
     try {
@@ -41,6 +42,34 @@ module.exports = {
   login: async (request, response, next) => {
     try {
       const { email, password } = request.body;
+      if (!email || !password) {
+        response
+          .status(400)
+          .json({ message: "Please enter a valid email and password." });
+      }
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        response.status(400).json({ message: "User does not exists." });
+      }
+      if (user) {
+        const authenticationStatus = bcrypt.compare(password, user.password);
+        if (!authenticationStatus) {
+          response.status(400).json({ message: "Password is invalid" });
+        }
+        if (authenticationStatus) {
+          const token = jwt.sign({ id: user._id }, config.jwtsecret, {
+            expiresIn: 3600,
+          });
+          response.json({
+            token,
+            user: {
+              name: user.name,
+              email: user.email,
+              id: user._id,
+            },
+          });
+        }
+      }
     } catch (error) {
       next(error);
     }
