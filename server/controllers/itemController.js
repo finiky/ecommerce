@@ -4,7 +4,7 @@ const ItemModel = require("../models/ItemModel");
 const { all } = require("../routes/item.router");
 
 module.exports = {
-  getItems: async (request, response) => {
+  getItems: async (request, response, next) => {
     try {
       const items = await ItemModel.find({});
       response.status(200).json(items);

@@ -1,49 +1,51 @@
-const { remove } = require("../models/CartModel");
 const CartModel = require("../models/CartModel");
-const mongoose = require("mongoose");
 module.exports = {
-  addToCart: async (request, response) => {
-    const userId = request.params.id;
-    const item = request.body;
-    const cart = await CartModel.findOne({ userId });
-    if (!cart) {
-      if (
-        item.quantity <= 0 ||
-        item.quantity === null ||
-        item.quantity === undefined
-      ) {
-        item.quantity = 1;
+  addToCart: async (request, response, next) => {
+    try {
+      const userId = request.params.id;
+      const item = request.body;
+      const cart = await CartModel.findOne({ userId });
+      if (!cart) {
+        if (
+          item.quantity <= 0 ||
+          item.quantity === null ||
+          item.quantity === undefined
+        ) {
+          item.quantity = 1;
+        }
+        const createCart = {
+          userId: userId,
+          items: [
+            {
+              productId: item._id,
+              name: item.title,
+              quantity: item.quantity,
+              price: item.price,
+            },
+          ],
+          bill: item.quantity * item.price,
+        };
+        const newCart = new CartModel(createCart);
+        await newCart.save();
+        const updatedCart = await CartModel.findOne({ userId });
+        return response.status(200).json(updatedCart);
       }
-      const createCart = {
-        userId: userId,
-        items: [
-          {
-            productId: item._id,
-            name: item.title,
-            quantity: item.quantity,
-            price: item.price,
-          },
-        ],
-        bill: item.quantity * item.price,
-      };
-      const newCart = new CartModel(createCart);
-      await newCart.save();
-      const updatedCart = await CartModel.findOne({ userId });
-      return response.status(200).json(updatedCart);
+      cart.items.push({
+        productId: item._id,
+        name: item.title,
+        quantity: item.quantity,
+        price: item.price,
+      });
+      cart.bill =
+        cart.bill +
+        cart.items[cart.items.length - 1].price *
+          cart.items[cart.items.length - 1].quantity;
+      await CartModel.findOneAndUpdate({ userId }, cart);
+      const updatedItem = await CartModel.findById(cart._id);
+      return response.status(200).json(updatedItem);
+    } catch (error) {
+      next(error);
     }
-    cart.items.push({
-      productId: item._id,
-      name: item.title,
-      quantity: item.quantity,
-      price: item.price,
-    });
-    cart.bill =
-      cart.bill +
-      cart.items[cart.items.length - 1].price *
-        cart.items[cart.items.length - 1].quantity;
-    await CartModel.findOneAndUpdate({ userId }, cart);
-    const updatedItem = await CartModel.findById(cart._id);
-    return response.status(200).json(updatedItem);
   },
   getCartItems: async (request, response, next) => {
     try {

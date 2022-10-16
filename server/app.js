@@ -4,17 +4,18 @@ const app = express();
 const authRouter = require("./routes/auth.router");
 const itemRouter = require("./routes/item.router");
 const cartRouter = require("./routes/cart.router");
+const orderRouter = require("./routes/order.router");
 const errorHandler = require("./middlewares/errorHandlerMiddleware");
+
+//Middlewares
 app.use(cors());
 app.use(express.json());
 
-app.get("/", async (request, response, next) => {
-  response.status(200).send({ message: "Hello Server!" });
-});
-
+//Endpoints
 app.use("/", authRouter);
 app.use("/", itemRouter);
 app.use("/", cartRouter);
+app.use("/", orderRouter);
 
 //errorHandler Middleware;
 app.use(errorHandler);

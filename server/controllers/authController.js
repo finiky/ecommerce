@@ -73,7 +73,7 @@ module.exports = {
       next(error);
     }
   },
-  getUser: async (request, response) => {
+  getUser: async (request, response, next) => {
     try {
       const user = await UserModel.findById(request.user.id).select(
         "-password"
