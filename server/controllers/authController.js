@@ -54,21 +54,20 @@ module.exports = {
       if (user) {
         const authenticationStatus = bcrypt.compare(password, user.password);
         if (!authenticationStatus) {
-          response.status(400).json({ message: "Password is invalid" });
+          return response.status(400).json({ message: "Password is invalid" });
         }
-        if (authenticationStatus) {
-          const token = jwt.sign({ id: user._id }, config.jwtsecret, {
-            expiresIn: 3600,
-          });
-          response.json({
-            token,
-            user: {
-              name: user.name,
-              email: user.email,
-              id: user._id,
-            },
-          });
-        }
+
+        const token = jwt.sign({ id: user._id }, config.jwtsecret, {
+          expiresIn: 3600,
+        });
+        response.json({
+          token,
+          user: {
+            name: user.name,
+            email: user.email,
+            id: user._id,
+          },
+        });
       }
     } catch (error) {
       next(error);

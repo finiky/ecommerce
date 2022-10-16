@@ -1,5 +1,7 @@
 const { response } = require("express");
+const { findById, update } = require("../models/ItemModel");
 const ItemModel = require("../models/ItemModel");
+const { all } = require("../routes/item.router");
 
 module.exports = {
   getItems: async (request, response) => {
@@ -35,4 +37,16 @@ module.exports = {
       return response.status(400).json({ message: "Item not created" });
     }
   },
+  updateItem: async(request, response) => {
+    const { id } = request.params;
+    await ItemModel.findByIdAndUpdate({_id: id},request.body);
+    const updatedItem = await ItemModel.findById(id);
+    response.status(200).json(updatedItem);
+  },
+  removeItem: async (request, response) => {
+    const {id} = request.params;
+    await ItemModel.findByIdAndDelete({_id: id});
+    const allItems = await ItemModel.find({});
+    response.status(200).json({success: true});
+  }
 };
