@@ -1,13 +1,14 @@
-const { response } = require("express");
-const { findById, update } = require("../models/ItemModel");
+const fotmatItem = require("../utils/formatItem");
 const ItemModel = require("../models/ItemModel");
 const { all } = require("../routes/item.router");
+const formatItem = require("../utils/formatItem");
 
 module.exports = {
   getItems: async (request, response, next) => {
     try {
-      const items = await ItemModel.find({});
-      response.status(200).json(items);
+      let items = await ItemModel.find({});
+      items = items.map((item) => formatItem(item));
+      return response.status(200).json(items);
     } catch (error) {
       next(error);
     }
@@ -16,9 +17,9 @@ module.exports = {
     const { id } = request.params;
     const item = await ItemModel.findById(id);
     if (item.title) {
-      response.status(200).json(item);
+      return response.status(200).json(item);
     } else {
-      response.status(400).json({ message: "Item not found" });
+      return response.status(400).json({ message: "Item not found" });
     }
   },
   addItem: async (request, response) => {
@@ -41,11 +42,11 @@ module.exports = {
     const { id } = request.params;
     await ItemModel.findByIdAndUpdate({ _id: id }, request.body);
     const updatedItem = await ItemModel.findById(id);
-    response.status(200).json(updatedItem);
+    return response.status(200).json(updatedItem);
   },
   removeItem: async (request, response) => {
     const { id } = request.params;
     await ItemModel.findByIdAndDelete({ _id: id });
-    response.status(200).json({ success: true });
+    return response.status(200).json({ success: true });
   },
 };

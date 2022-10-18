@@ -1,8 +1,7 @@
 const OrderModel = require("../models/OrderModel");
 const CartModel = require("../models/CartModel");
 const UserModel = require("../models/UserModel");
-const config = require("../../config");
-const stripe = require("stripe")(config.StripeAPIKey);
+const stripe = require("stripe");
 module.exports = {
   checkout: async (request, response, next) => {
     try {

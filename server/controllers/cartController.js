@@ -41,7 +41,7 @@ module.exports = {
         cart.items[cart.items.length - 1].price *
           cart.items[cart.items.length - 1].quantity;
       await CartModel.findOneAndUpdate({ userId }, cart);
-      const updatedItem = await CartModel.findById(cart._id);
+      const updatedItem = await CartModel.findOne({ userId });
       return response.status(200).json(updatedItem);
     } catch (error) {
       next(error);
@@ -64,6 +64,7 @@ module.exports = {
       const { userId, itemId } = request.params;
       const cart = await CartModel.findOne({ userId });
       if (!cart || cart.items.length === 0) {
+        await CartModel.findOneAndDelete({ userId });
         return response.status(200).json({ message: "Cart empty" });
       }
       removeItem = cart.items.filter((item) => itemId === item._id.valueOf());
