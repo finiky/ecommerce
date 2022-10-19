@@ -17,8 +17,7 @@ function App() {
         <HomeButton />
         <CartButton />
         <LogInButton />
-        <SignUpButton/>
-        
+        <SignUpButton />
       </header>
       <Routes>
         <Route exact path="/" element={<Home />} />
