@@ -47,16 +47,18 @@ module.exports = {
       next(error);
     }
   },
-  getCartItems: async (request, response, next) => {
+  getCartItems: async (request, response) => {
     try {
       const userId = request.params.id;
       const cart = await CartModel.findOne({ userId });
-      if (!cart) {
-        return response.status(200).json({ message: "Cart empty" });
+      if (cart && cart.items.length>0) {
+        return response.send(cart);
       }
-      return response.status(200).json(cart);
+      else{
+        return response.send(null);
+      }
     } catch (error) {
-      next(error);
+      res.status(500).send("Something went wrong");;
     }
   },
   deleteItem: async (request, response, next) => {
