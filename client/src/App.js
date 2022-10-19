@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
+import SignUpButton from "./components/SignUpButton";
 import HomeButton from "./components/HomeButton";
 import LogInButton from "./components/LogInButton";
 import LoginPage from "./components/LoginPage";
@@ -14,8 +15,10 @@ function App() {
       <header className={styles.header}>
         <h1 className={styles.shopName}>E-Stationery</h1>
         <HomeButton />
-        <LogInButton />
         <CartButton />
+        <LogInButton />
+        <SignUpButton/>
+        
       </header>
       <Routes>
         <Route exact path="/" element={<Home />} />
